@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Random Samples — Free Audio Plugins</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --amber: #D4912A;
+    --amber-light: #E8B44C;
+    --amber-glow: #F5C96E;
+    --crimson-deep: #5C1018;
+    --crimson: #8B1A2B;
+    --crimson-light: #A82840;
+    --black: #0A0808;
+    --dark: #12100E;
+    --dark-warm: #1A1614;
+    --panel: #1E1A17;
+    --text-primary: #E8DCC8;
+    --text-dim: #9A8E7E;
+    --text-muted: #5E554A;
+    --scanline: rgba(212, 145, 42, 0.03);
+    --grid-line: rgba(212, 145, 42, 0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--text-primary);
+    font-family: 'IBM Plex Mono', monospace;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.3;
+  }
+
+  .grid-bg {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  .glow-top {
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(139, 26, 43, 0.25) 0%, rgba(92, 16, 24, 0.1) 40%, transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .glow-amber {
+    position: fixed;
+    bottom: -100px;
+    right: -100px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(ellipse, rgba(212, 145, 42, 0.08) 0%, transparent 60%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* === HEADER === */
+  header {
+    padding: 2rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(212, 145, 42, 0.12);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    border: 2px solid var(--amber);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.7rem;
+    color: var(--amber);
+    letter-spacing: -0.5px;
+    position: relative;
+  }
+
+  .logo-mark::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1px solid rgba(212, 145, 42, 0.3);
+  }
+
+  .logo-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+
+  .logo-text span {
+    color: var(--amber);
+  }
+
+  nav {
+    display: flex;
+    gap: 2.5rem;
+  }
+
+  nav a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    position: relative;
+  }
+
+  nav a:hover {
+    color: var(--amber);
+  }
+
+  nav a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0%;
+    height: 1px;
+    background: var(--amber);
+    transition: width 0.3s ease;
+  }
+
+  nav a:hover::after {
+    width: 100%;
+  }
+
+  /* === HERO === */
+  .hero {
+    padding: 8rem 3rem 6rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .hero-tag {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 40px;
+    height: 1px;
+    background: var(--amber);
+  }
+
+  .hero h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 300;
+    font-size: 3.5rem;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-bottom: 2rem;
+    max-width: 800px;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--amber);
+    font-weight: 500;
+  }
+
+  .hero-sub {
+    font-size: 0.85rem;
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--text-dim);
+    max-width: 550px;
+    margin-bottom: 3rem;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 2rem;
+    background: var(--amber);
+    color: var(--black);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background: var(--amber-light);
+    box-shadow: 0 0 30px rgba(212, 145, 42, 0.25);
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 2rem;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid var(--text-muted);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    color: var(--amber);
+    border-color: var(--amber);
+  }
+
+  .hero-data {
+    position: absolute;
+    top: 8rem;
+    right: 3rem;
+    text-align: right;
+    opacity: 0.4;
+  }
+
+  .hero-data .data-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    line-height: 2.2;
+    letter-spacing: 0.1em;
+  }
+
+  .hero-data .data-line .val {
+    color: var(--amber);
+    opacity: 0.7;
+  }
+
+  /* === DIVIDER === */
+  .divider {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 3rem;
+  }
+
+  .divider-line {
+    height: 1px;
+    background: linear-gradient(90deg, var(--crimson) 0%, rgba(212, 145, 42, 0.3) 50%, var(--crimson-deep) 100%);
+  }
+
+  /* === PLUGINS SECTION === */
+  .plugins {
+    padding: 6rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4rem;
+  }
+
+  .section-tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+  }
+
+  .plugin-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .plugin-card {
+    background: var(--panel);
+    border: 1px solid rgba(212, 145, 42, 0.08);
+    padding: 2.5rem;
+    position: relative;
+    transition: all 0.4s ease;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .plugin-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--crimson), var(--amber), var(--crimson));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .plugin-card:hover::before {
+    opacity: 1;
+  }
+
+  .plugin-card:hover {
+    border-color: rgba(212, 145, 42, 0.2);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    transform: translateY(-2px);
+  }
+
+  .plugin-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+  }
+
+  .plugin-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: -0.02em;
+  }
+
+  .plugin-version {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--text-muted);
+    padding: 0.3rem 0.6rem;
+    border: 1px solid rgba(212, 145, 42, 0.15);
+    letter-spacing: 0.1em;
+  }
+
+  .plugin-type {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--crimson-light);
+    margin-bottom: 1rem;
+  }
+
+  .plugin-desc {
+    font-size: 0.8rem;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--text-dim);
+    margin-bottom: 2rem;
+  }
+
+  .plugin-specs {
+    display: flex;
+    gap: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(212, 145, 42, 0.06);
+  }
+
+  .spec {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .spec-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .spec-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--amber-light);
+  }
+
+  .plugin-dl {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .plugin-dl:hover {
+    color: var(--amber);
+  }
+
+  .plugin-dl .arrow {
+    transition: transform 0.3s;
+  }
+
+  .plugin-dl:hover .arrow {
+    transform: translateX(4px);
+  }
+
+  /* === ARTICLES SECTION === */
+  .articles {
+    padding: 6rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .article-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .article-row {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    gap: 2rem;
+    align-items: baseline;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid rgba(212, 145, 42, 0.06);
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .article-row:hover {
+    padding-left: 1rem;
+    border-bottom-color: rgba(212, 145, 42, 0.15);
+  }
+
+  .article-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .article-title {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    transition: color 0.3s;
+  }
+
+  .article-row:hover .article-title {
+    color: var(--amber);
+  }
+
+  .article-tag {
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0.2rem 0.6rem;
+    border: 1px solid rgba(212, 145, 42, 0.1);
+  }
+
+  /* === ABOUT SECTION === */
+  .about {
+    padding: 6rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .about-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 300;
+    line-height: 1.4;
+    color: var(--text-primary);
+  }
+
+  .about-title em {
+    font-style: normal;
+    color: var(--amber);
+    font-weight: 500;
+  }
+
+  .about-text {
+    font-size: 0.8rem;
+    font-weight: 300;
+    line-height: 2;
+    color: var(--text-dim);
+  }
+
+  .about-text p + p {
+    margin-top: 1.5rem;
+  }
+
+  /* === FOOTER === */
+  footer {
+    padding: 3rem;
+    border-top: 1px solid rgba(212, 145, 42, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1100px;
+    margin: 4rem auto 0;
+  }
+
+  .footer-copy {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .footer-links a {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+
+  .footer-links a:hover {
+    color: var(--amber);
+  }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes flicker {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.6; }
+  }
+
+  .hero-tag { animation: fadeInUp 0.8s ease both; animation-delay: 0.1s; }
+  .hero h1 { animation: fadeInUp 0.8s ease both; animation-delay: 0.25s; }
+  .hero-sub { animation: fadeInUp 0.8s ease both; animation-delay: 0.4s; }
+  .hero-cta { animation: fadeInUp 0.8s ease both; animation-delay: 0.55s; }
+  .hero-data { animation: flicker 4s ease-in-out infinite; }
+
+  .plugin-card { animation: fadeInUp 0.8s ease both; }
+  .plugin-card:nth-child(1) { animation-delay: 0.7s; }
+  .plugin-card:nth-child(2) { animation-delay: 0.85s; }
+
+  @media (max-width: 768px) {
+    header { padding: 1.5rem; flex-direction: column; gap: 1.5rem; }
+    nav { gap: 1.5rem; }
+    .hero { padding: 4rem 1.5rem 3rem; }
+    .hero h1 { font-size: 2rem; }
+    .hero-data { display: none; }
+    .plugin-grid { grid-template-columns: 1fr; }
+    .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .plugins, .articles, .about { padding: 3rem 1.5rem; }
+    .article-row { grid-template-columns: 1fr; gap: 0.5rem; }
+    .article-tag { justify-self: start; }
+    footer { flex-direction: column; gap: 1rem; padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow-top"></div>
+<div class="glow-amber"></div>
+
+<div class="content">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-mark">RS</div>
+      <div class="logo-text">Random <span>Samples</span></div>
+    </div>
+    <nav>
+      <a href="#plugins">Plugins</a>
+      <a href="#articles">Articles</a>
+      <a href="#about">About</a>
+      <a href="https://github.com/randomsamples">Source</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-tag">Analog Tone / Digital Tools</div>
+    <h1><em>Analog emulation</em> plugins inspired by vintage gear</h1>
+    <p class="hero-sub">
+      Free VST3 and AU plugins that model the behavior of
+      hard-to-find vintage analog hardware — the saturation,
+      the EQ curves, and the characteristics that give classic
+      gear its sound.
+    </p>
+    <div class="hero-cta">
+      <a href="#plugins" class="btn-primary">Browse Plugins ↓</a>
+      <a href="#articles" class="btn-secondary">Read Articles</a>
+    </div>
+
+    <div class="hero-data">
+      <div class="data-line">gain &nbsp;&nbsp;&nbsp;&nbsp; <span class="val">0..40dB</span></div>
+      <div class="data-line">lo &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="val">30..300</span></div>
+      <div class="data-line">mid &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="val">160..8k</span></div>
+      <div class="data-line">hi &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="val">700..8k</span></div>
+      <div class="data-line">────────────</div>
+      <div class="data-line">presence &nbsp; <span class="val">0.0..1.0</span></div>
+      <div class="data-line">bias &nbsp;&nbsp;&nbsp;&nbsp; <span class="val">cold..hot</span></div>
+      <div class="data-line">blend &nbsp;&nbsp;&nbsp; <span class="val">0.0..1.0</span></div>
+      <div class="data-line">master &nbsp;&nbsp; <span class="val">▮▮▮▮▮▯▯▯</span></div>
+    </div>
+  </section>
+
+  <div class="divider"><div class="divider-line"></div></div>
+
+  <!-- PLUGINS -->
+  <section class="plugins" id="plugins">
+    <div class="section-header">
+      <span class="section-tag">Plugins</span>
+      <span class="section-num">001 releases</span>
+    </div>
+
+    <div class="plugin-grid">
+
+      <a href="rs-40.html" class="plugin-card" style="text-decoration: none; color: inherit;">
+        <div class="plugin-card-header">
+          <div class="plugin-name">RS-40</div>
+          <div class="plugin-version">v1.0.0</div>
+        </div>
+        <div class="plugin-type">Preamp Emulation Plugin</div>
+        <p class="plugin-desc">
+          Analog preamp emulation inspired by the Ashly SC-40
+          instrument preamp. Features 3-band EQ and optional
+          saturation. Designed for bass guitar.
+        </p>
+        <div class="plugin-specs">
+          <div class="spec">
+            <span class="spec-label">Type</span>
+            <span class="spec-value">Preamp</span>
+          </div>
+          <div class="spec">
+            <span class="spec-label">EQ</span>
+            <span class="spec-value">3-Band</span>
+          </div>
+          <div class="spec">
+            <span class="spec-label">Format</span>
+            <span class="spec-value">VST3 / AU</span>
+          </div>
+          <div class="spec">
+            <span class="spec-label">Price</span>
+            <span class="spec-value">Free</span>
+          </div>
+        </div>
+        <div class="plugin-dl">
+          Download <span class="arrow">→</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <div class="divider"><div class="divider-line"></div></div>
+
+  <!-- WRITING -->
+  <section class="articles" id="articles">
+    <div class="section-header">
+      <span class="section-tag">Articles</span>
+      <span class="section-num">notes on tone</span>
+    </div>
+
+    <div class="article-list">
+      <a href="article-rs40-moving-pictures.html" class="article-row">
+        <span class="article-date">2026.02</span>
+        <span class="article-title">Matching Geddy Lee's Moving Pictures bass tone with the RS-40</span>
+        <span class="article-tag">Bass</span>
+      </a>
+      <a href="#" class="article-row">
+        <span class="article-date">2026.02</span>
+        <span class="article-title">Alex Lifeson's Moving Pictures guitar tone and the Marshall 4140</span>
+        <span class="article-tag">Guitar</span>
+      </a>
+    </div>
+  </section>
+
+  <div class="divider"><div class="divider-line"></div></div>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="section-header">
+      <span class="section-tag">About</span>
+      <span class="section-num">random-samples.com</span>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-title">
+        About
+      </div>
+      <div class="about-text">
+        <p>
+          Random Samples is a home for free audio plugins and
+          occasional articles about tone and gear.
+        </p>
+        <p>
+          <a href="/cdn-cgi/l/email-protection#2a4945445e4b495e6a584b444e454707594b475a464f5904494547" style="color: var(--amber); text-decoration: none;"><span class="__cf_email__" data-cfemail="c0a3afaeb4a1a3b480b2a1aea4afadedb3a1adb0aca5b3eea3afad">[email&#160;protected]</span></a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-copy">© 2026 Random Samples</div>
+    <div class="

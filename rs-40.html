@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RS-40 — Free Ashly SC-40 Preamp Emulation Plugin | Random Samples</title>
+<meta name="description" content="RS-40 is a free analog preamp emulation plugin inspired by the Ashly SC-40 instrument preamp. 3-band semi-parametric EQ with optional saturation. VST3 and AU.">
+<meta name="keywords" content="RS-40, Ashly SC-40, free preamp plugin, analog emulation, bass preamp VST, VST3, AU, Geddy Lee, Moving Pictures, bass tone">
+<meta property="og:title" content="RS-40 — Free Ashly SC-40 Preamp Emulation Plugin">
+<meta property="og:description" content="Free analog preamp emulation inspired by the Ashly SC-40. 3-band EQ with optional saturation. Designed for bass guitar.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://random-samples.com/rs-40">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RS-40 — Free SC-40 Preamp Emulation Plugin">
+<meta name="twitter:description" content="Free analog preamp emulation inspired by the Ashly SC-40. Designed for bass guitar. VST3 and AU.">
+<link rel="canonical" href="https://random-samples.com/rs-40">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --amber: #D4912A;
+    --amber-light: #E8B44C;
+    --amber-glow: #F5C96E;
+    --crimson-deep: #5C1018;
+    --crimson: #8B1A2B;
+    --crimson-light: #A82840;
+    --black: #0A0808;
+    --dark: #12100E;
+    --dark-warm: #1A1614;
+    --panel: #1E1A17;
+    --text-primary: #E8DCC8;
+    --text-dim: #9A8E7E;
+    --text-muted: #5E554A;
+    --grid-line: rgba(212, 145, 42, 0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--text-primary);
+    font-family: 'IBM Plex Mono', monospace;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.3;
+  }
+
+  .grid-bg {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  .glow-top {
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(139, 26, 43, 0.25) 0%, rgba(92, 16, 24, 0.1) 40%, transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* === HEADER === */
+  header {
+    padding: 2rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(212, 145, 42, 0.12);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    border: 2px solid var(--amber);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.7rem;
+    color: var(--amber);
+    letter-spacing: -0.5px;
+    position: relative;
+  }
+
+  .logo-mark::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1px solid rgba(212, 145, 42, 0.3);
+  }
+
+  .logo-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+
+  .logo-text span {
+    color: var(--amber);
+  }
+
+  nav {
+    display: flex;
+    gap: 2.5rem;
+  }
+
+  nav a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    position: relative;
+  }
+
+  nav a:hover { color: var(--amber); }
+  nav a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0%;
+    height: 1px;
+    background: var(--amber);
+    transition: width 0.3s ease;
+  }
+  nav a:hover::after { width: 100%; }
+
+  /* === BREADCRUMB === */
+  .breadcrumb {
+    padding: 1.5rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .breadcrumb a {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .breadcrumb a:hover { color: var(--amber); }
+
+  .breadcrumb .sep {
+    color: var(--text-muted);
+    margin: 0 0.5rem;
+    font-size: 0.6rem;
+  }
+
+  .breadcrumb .current {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+
+  /* === PLUGIN HERO === */
+  .plugin-hero {
+    padding: 3rem 3rem 4rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .plugin-hero-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+  }
+
+  .plugin-hero-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: -0.02em;
+  }
+
+  .plugin-hero-version {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    padding: 0.4rem 0.8rem;
+    border: 1px solid rgba(212, 145, 42, 0.15);
+    letter-spacing: 0.1em;
+    margin-top: 1rem;
+  }
+
+  .plugin-hero-type {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--crimson-light);
+    margin-bottom: 2rem;
+  }
+
+  .plugin-hero-desc {
+    font-size: 0.9rem;
+    font-weight: 300;
+    line-height: 1.9;
+    color: var(--text-dim);
+    max-width: 650px;
+    margin-bottom: 3rem;
+  }
+
+  .download-row {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 2rem;
+    background: var(--amber);
+    color: var(--black);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-download:hover {
+    background: var(--amber-light);
+    box-shadow: 0 0 30px rgba(212, 145, 42, 0.25);
+  }
+
+  .btn-source {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 2rem;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid var(--text-muted);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-source:hover {
+    color: var(--amber);
+    border-color: var(--amber);
+  }
+
+  /* === DIVIDER === */
+  .divider {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 3rem;
+  }
+
+  .divider-line {
+    height: 1px;
+    background: linear-gradient(90deg, var(--crimson) 0%, rgba(212, 145, 42, 0.3) 50%, var(--crimson-deep) 100%);
+  }
+
+  /* === SPECS === */
+  .specs-section {
+    padding: 4rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 3rem;
+    display: block;
+  }
+
+  .specs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .spec-card {
+    background: var(--panel);
+    border: 1px solid rgba(212, 145, 42, 0.08);
+    padding: 1.5rem;
+  }
+
+  .spec-card-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .spec-card-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--amber-light);
+  }
+
+  /* === PARAMETERS === */
+  .params-section {
+    padding: 4rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .param-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .param-table th {
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: left;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(212, 145, 42, 0.12);
+    font-weight: 400;
+  }
+
+  .param-table td {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(212, 145, 42, 0.04);
+  }
+
+  .param-table td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-primary);
+    font-size: 0.75rem;
+  }
+
+  .param-table td:nth-child(2) {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--amber-light);
+    font-size: 0.75rem;
+  }
+
+  /* === SYSTEM REQUIREMENTS === */
+  .requirements-section {
+    padding: 4rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .req-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .req-block {
+    background: var(--panel);
+    border: 1px solid rgba(212, 145, 42, 0.08);
+    padding: 2rem;
+  }
+
+  .req-block-title {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 1.5rem;
+  }
+
+  .req-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(212, 145, 42, 0.04);
+  }
+
+  .req-item-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .req-item-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+  }
+
+  /* === FOOTER === */
+  footer {
+    padding: 3rem;
+    border-top: 1px solid rgba(212, 145, 42, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1100px;
+    margin: 4rem auto 0;
+  }
+
+  .footer-copy {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .footer-links a {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+
+  .footer-links a:hover { color: var(--amber); }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .plugin-hero-name { animation: fadeInUp 0.8s ease both; animation-delay: 0.1s; }
+  .plugin-hero-type { animation: fadeInUp 0.8s ease both; animation-delay: 0.2s; }
+  .plugin-hero-desc { animation: fadeInUp 0.8s ease both; animation-delay: 0.3s; }
+  .download-row { animation: fadeInUp 0.8s ease both; animation-delay: 0.4s; }
+
+  @media (max-width: 768px) {
+    header { padding: 1.5rem; flex-direction: column; gap: 1.5rem; }
+    nav { gap: 1.5rem; }
+    .breadcrumb { padding: 1.5rem; }
+    .plugin-hero { padding: 2rem 1.5rem 3rem; }
+    .plugin-hero-name { font-size: 2.5rem; }
+    .specs-grid { grid-template-columns: 1fr; }
+    .req-grid { grid-template-columns: 1fr; }
+    .specs-section, .params-section, .requirements-section { padding: 3rem 1.5rem; }
+    .download-row { flex-direction: column; }
+    footer { flex-direction: column; gap: 1rem; padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow-top"></div>
+
+<div class="content">
+
+  <!-- HEADER -->
+  <header>
+    <a href="index.html" class="logo">
+      <div class="logo-mark">RS</div>
+      <div class="logo-text">Random <span>Samples</span></div>
+    </a>
+    <nav>
+      <a href="index.html#plugins">Plugins</a>
+      <a href="index.html#articles">Articles</a>
+      <a href="index.html#about">About</a>
+      <a href="https://github.com/jbrooks95">Source</a>
+    </nav>
+  </header>
+
+  <!-- BREADCRUMB -->
+  <div class="breadcrumb">
+    <a href="index.html">Home</a>
+    <span class="sep">/</span>
+    <a href="index.html#plugins">Plugins</a>
+    <span class="sep">/</span>
+    <span class="current">RS-40</span>
+  </div>
+
+  <!-- PLUGIN HERO -->
+  <section class="plugin-hero">
+    <div class="plugin-hero-header">
+      <div class="plugin-hero-name">RS-40</div>
+      <div class="plugin-hero-version">v1.0.0</div>
+    </div>
+    <div class="plugin-hero-type">Preamp Emulation Plugin</div>
+    <p class="plugin-hero-desc">
+      Free analog preamp emulation inspired by the Ashly SC-40 instrument
+      preamp. Features 3-band semi-parametric EQ with sweepable
+      frequency controls and optional diode saturation. Designed
+      for bass guitar.
+    </p>
+    <p class="plugin-hero-desc" style="margin-top: -1.5rem;">
+      The SC-40 is notably part of the signal chain Geddy Lee used
+      to record his bass tone on Rush's Moving Pictures.
+    </p>
+    <div class="download-row">
+      <a href="#" class="btn-download">Download — macOS ↓</a>
+      <a href="#" class="btn-download">Download — Windows ↓</a>
+      <a href="#" class="btn-source">Manual</a>
+      <a href="https://github.com/jbrooks95/rs-40" class="btn-source">View Source</a>
+    </div>
+  </section>
+
+  <div class="divider"><div class="divider-line"></div></div>
+
+  <!-- SPECS -->
+  <section class="specs-section">
+    <span class="section-tag">Specifications</span>
+    <div class="specs-grid">
+      <div class="spec-card">
+        <div class="spec-card-label">Type</div>
+        <div class="spec-card-value">Preamp</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-card-label">EQ</div>
+        <div class="spec-card-value">3-Band Semi-Parametric</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-card-label">Saturation</div>
+        <div class="spec-card-value">Diode (Optional)</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-card-label">Formats</div>
+        <div class="spec-card-value">VST3 / AU</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-card-label">Processing</div>
+        <div class="spec-card-value">64-bit / Stereo</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-card-label">Price</div>
+        <div class="spec-card-value">Free</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"><div class="divider-line"></div></div>
+
+  <!-- SYSTEM REQUIREMENTS -->
+  <section class="requirements-section">
+    <span class="section-tag">System Requirements</span>
+    <div class="req-grid">
+      <div class="req-block">
+        <div class="req-block-title">macOS</div>
+        <div class="req-item">
+          <span class="req-item-label">OS</span>
+          <span class="req-item-value">macOS 11+</span>
+        </div>
+        <div class="req-item">
+          <span class="req-item-label">Architecture</span>
+          <span class="req-item-value">Intel / Apple Silicon</span>
+        </div>
+        <div class="req-item">
+          <span class="req-item-label">Formats</span>
+          <span class="req-item-value">VST3, AU</span>
+        </div>
+      </div>
+      <div class="req-block">
+        <div class="req-block-title">Windows</div>
+        <div class="req-item">
+          <span class="req-item-label">OS</span>
+          <span class="req-item-value">Windows 10+</span>
+        </div>
+        <div class="req-item">
+          <span class="req-item-label">Architecture</span>
+          <span class="req-item-value">x64</span>
+        </div>
+        <div class="req-item">
+          <span class="req-item-label">Formats</span>
+          <span class="req-item-value">VST3</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-copy">© 2026 Random Samples</div>
+    <div class="footer-links">
+      <a href="https://github.com/jbrooks95">GitHub</a>
+    </div>
+  </footer>
+
+</div>
+
+</body>
+</html>
