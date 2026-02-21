@@ -479,8 +479,24 @@
   .plugin-hero-type { animation: fadeInUp 0.8s ease both; animation-delay: 0.2s; }
   .plugin-hero-desc { animation: fadeInUp 0.8s ease both; animation-delay: 0.3s; }
   .download-row { animation: fadeInUp 0.8s ease both; animation-delay: 0.4s; }
+  .plugin-screenshot { animation: fadeInUp 0.8s ease both; animation-delay: 0.5s; }
+
+  .plugin-screenshot {
+    padding: 1rem 3rem 4rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+  }
+
+  .plugin-screenshot img {
+    max-width: 100%;
+    border: 1px solid rgba(212, 145, 42, 0.12);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  }
 
   @media (max-width: 768px) {
+    .plugin-screenshot { padding: 2rem 1.5rem; }
     header { padding: 1.5rem; flex-direction: column; gap: 1.5rem; }
     nav { gap: 1.5rem; }
     .breadcrumb { padding: 1.5rem; }
@@ -547,6 +563,11 @@
       <a href="https://github.com/jbrooks95/rs-40" class="btn-source">View Source</a>
     </div>
   </section>
+
+  <!-- SCREENSHOT -->
+  <div class="plugin-screenshot">
+    <img src="images/plugin-screenshot.png" alt="RS-40 plugin interface showing preamp controls, 3-band EQ, drive section, and character analyzer">
+  </div>
 
   <div class="divider"><div class="divider-line"></div></div>
 
